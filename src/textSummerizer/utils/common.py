@@ -1,8 +1,8 @@
 import os
 from box.exceptions import BoxValueError
-from src.textSummerizer.logging import Logger
+from src.textSummerizer.logging import logger
 import yaml 
-from textSummerizer.logging import Logger
+from textSummerizer.logging import logger
 from ensure import ensure_annotations
 from box import ConfigBox
 
@@ -11,25 +11,21 @@ from pathlib import Path
 from typing import Any
 
 @ensure_annotations
-def read_yaml(path_to_yaml:Path)-> ConfigBox:
-    """Read the yaml configuration file and return 
-    Args:  
-      path_to_yaml(str) : path like input
-    Raises : 
-    ValueError: if yaml file is empty 
-    e:empty file
-    Returns: 
-    ConfigBox : ConfigBox type"""
-    
+def read_yaml(path_to_yaml: Path):
     try:
-        with open(path_to_yaml) as yaml_file:
-            content = yaml.safe_load(yaml_file)
-            logger.info(f"yaml file: {path_to_yaml} loaded successfully")
-            return ConfigBox(content)
-    except BoxValueError:
-        raise ValueError("yaml file is empty")
+        with open(path_to_yaml, "r") as file:
+            content = yaml.safe_load(file)
+
+        if not content or not isinstance(content, dict):  # Validate the YAML content
+            raise ValueError(f"The YAML file at {path_to_yaml} is empty or not a valid dictionary.")
+
+        logger.info(f"YAML file: {path_to_yaml} loaded successfully.")
+        return ConfigBox(content)
+
+    except BoxValueError as e:
+        raise ValueError(f"Error converting YAML content to ConfigBox: {e}")
     except Exception as e:
-        raise e
+        raise ValueError(f"Failed to read YAML file at {path_to_yaml}: {e}")
     
 
 
